@@ -43,8 +43,6 @@
 
 ![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/76a958a3-4a3f-41b9-92c2-a85850dc3950/Screen_Shot_2020-02-02_at_5.19.08_PM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/76a958a3-4a3f-41b9-92c2-a85850dc3950/Screen_Shot_2020-02-02_at_5.19.08_PM.png)
 
-<img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/76a958a3-4a3f-41b9-92c2-a85850dc3950/Screen_Shot_2020-02-02_at_5.19.08_PM.png" width="90%"></img>
-
 ### 이벤트 기반 프로그래밍
 
 - 전통적으로 사용자 인터페이스가 포함된 프로그램에 많이 사용된다. ( 예를 들어 마우스 클릭에 반응하는 코드) 이와 같이 각 이벤트를 먼저 정의해두고 발생한 이벤트에 따라서 코드가 실행되도록 프로그램을 작성하는것이 이벤트 기반 프로그래밍이다. * 앞서 말한 논블로킹 소켓의 Selector를 사용한 I/O이벤트 감지 역시 이벤트 기반 프로그램의 한 종류이다.
