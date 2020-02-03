@@ -1,5 +1,4 @@
 # Learning-Netty-Framework
-네티 프레임워크 공부 자료
 
 채팅 어플리케이션 개발을 위해 공부한 Netty Framework의 관한 내용 정리
 
@@ -43,6 +42,8 @@
 ### 동기와 비동기 / 블로킹과 논블로킹의 대한 간략 정리
 
 ![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/76a958a3-4a3f-41b9-92c2-a85850dc3950/Screen_Shot_2020-02-02_at_5.19.08_PM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/76a958a3-4a3f-41b9-92c2-a85850dc3950/Screen_Shot_2020-02-02_at_5.19.08_PM.png)
+
+<img src="https://s3-us-west-2.amazonaws.com/secure.notion-static.com/76a958a3-4a3f-41b9-92c2-a85850dc3950/Screen_Shot_2020-02-02_at_5.19.08_PM.png" width="90%"></img>
 
 ### 이벤트 기반 프로그래밍
 
