@@ -75,7 +75,7 @@
 
 ### Bootstrap 구조
 
-![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/c59a962d-d964-4783-ae4f-2b31703a0ffc/Untitled.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/c59a962d-d964-4783-ae4f-2b31703a0ffc/Untitled.png)
+![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/76a958a3-4a3f-41b9-92c2-a85850dc3950/Screen_Shot_2020-02-02_at_5.19.08_PM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/76a958a3-4a3f-41b9-92c2-a85850dc3950/Screen_Shot_2020-02-02_at_5.19.08_PM.png)
 
 - 위의 표는 부트스트랩이 지원하는 설정 목록이다.
 - 통상적으로 네트워크 애플리케이션은 서비스를 제공할 네트워크 포트, 네트워크 전송에 사용할 소켓 모드와 소켓 옵션, 소켓의 데이터를 처리하는 스레드, 그리고 애필르케이션에서 사용하는 프로토콜로 구성된다.
