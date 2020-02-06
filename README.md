@@ -335,8 +335,20 @@
 
 - 데이터를 주고 받을 때 데이터를 적절한 크게의 묶음으로 만들어 놓은 것이다. 네트워크를 통해 전송하기 쉽도록 자른 데이터의 전송단위이다.
 
-# Examples
+# 주요 객체
 
-    var commentCount = 0;
+Selector : 자신에게 등록된 채널에 변경 사항이 발생했는지 검사하고 변경 사항이 발생한 채널에 대한 접근을 가능하게 해준다. 
 
-You might suggest that this be a `let` instead of `var`.
+ServerSocketChannel : non-blocking 소켓의 서버 소켓 채널 (소켓을 먼저 생성하고 사용할 포트를 바인딩 한다.
+
+serverSocketChannel.configureBlocking(false) : 소켓 채널의 블로킹-모드를 논블로킹-모드로 설정하는 방법.
+
+serverSocketChannel.bind() : 클라이언트의 연결을 대기 할 포트를 지정하고 생성된 serverSocketChannel에 연결을 생성 한다.
+
+serverSocketChannel.register(selector,SelectionKey.OP_ACCEPT) : serverSocketChannel 객체를 Selector 객체에 등록한다. Selector 가 감지 할 이벤트 연결 요청에 해당하는 SelectionKey.OP_ACCEPT 이다.
+
+selector.select() :  selector에 등록된 채널에서 변경 사항이 발생했는지 검사한다. 
+
+Iterator<SelectionKey> keys = selector.selectedKeys().iterator() : Selector에 등록된 채널 중에서 I/O이벤트가 발생한 채널들의 목록을 조회한다.
+
+Bootrap : 소켓 연결을 요청한다. 각 Bootstrap 클래스는 AbstractBootstrap 클래스와  Channel  인터페이스를 상속받고 있다.
