@@ -201,7 +201,74 @@
     - channelUnregistered 이벤트
         - 채널이 이벤트 루프에서 제거 되었을 때 발생한다.
 
+### 채널 아웃바운드 이벤트
+
+아웃바운드 이벤트는 소켓 채널에서 발생한 이벤트 중에서 네티 사용자가  요청한 동작에 해당하는 이벤트를 말하며 연결 요청, 데이터 전송, 소켓 닫기 등이 이에 해당된다. ChannelOutboundHandler 인터페이스로 제공하고 이의 모든 이벤트는 `ChannelHandlerContext` 객체를 인수로 받는다. 
+
+### bind 이벤트
+
+- bind 이벤트는 서버 소켓 채널이 클라이언트의 연결을 대기하는 IP 포트가 설정 되었을 때 발생한다. bind 이벤트에서는 서버 소켓 채널이 사용중인 socketAddress 객체가 인수로 입력되고 서버 소켓 채널이 사용하는 IP와 포트 정보를 확인 할 수 있다.
+
+### Connect 이벤트
+
+- 클라이언트 소켓 채널이 서버에 연결되었을 때 발생한다. 원격지의 SocketAddress 정보와 로컬 SocketAddress 정보가 인수로 입력된다.
+
+### Disconnect 이벤트
+
+- 클라이언트 소켓 채널의 연결이 끊어 졌을 때 발생한다. 별도의 인수는 없다.
+
+### Close 이벤트
+
+클라이언트 소켓 채널의 연결이 닫혔을 때 발생한다. 별도의 인수는 없다. 
+
+### Wrtie 이벤트
+
+소켓 채널에 데이터가 기록되었을 때 발생한다. write 이벤트에는 소켓 채널에 기록된 데이터 버퍼가 인수로 입력된다. 
+
+### Flush 이벤트
+
+소켓 채널에 대한 flush 메소드가 호출 되었을 때 발생한다. 별도의 인수가 없다. 
+
+### 이벤트 이동 경로와 이벤트 메소드 실행
+
+핸들러가 여러개 등록이 되어 있고 겹치는 이벤트가 있다면 이벤트는 하나의 이벤트 메소드만 수행한다. 만약 두번째 이벤트 핸들러인 channelRead 메소드도 소행하고 싶다면 첫 번째 이벤트 핸들러의 코드를 다음과 같이 수정해야한다.
+
+    ctx.write(msg);
+    crx.fireChannelRead(msg);
+
+다음 이벤트 핸들러로 이벤트를 넘겨누는 것이다. ChannelHandlerContext 인터페이스를 사용하여 채널 파이프라인에 이벤트를 발생시키는 것이다. 
+
+ChannelHandlerContext 인터페이스의 fireChannelRead 메소드를 호출하면 네티는 채널 파이프라인에 channelRead 이벤트를 발생시킨다. 
+
 ## Codec
+
+### 코덱의 구조
+
+- 네티 애플리케이션을 기준으로 수신은 인바운드 송신은 아웃바운드로 볼 수 있다. 인바운드 아웃바운드에 해당하는 이벤트는 ChannelOutboundHandler와 ChannelInboundHandler 인터페이스로 각각 인코더와 디코더라 부른다. 데이터를 전송할 때는 인코더를 사용하여 패킷으로 변환하고 데이터를 수신할 때는 디코더를 사용하여 패킷을 데이터로 변환한다.
+
+### 템플릿 메소드 패턴이란
+
+- 네티의 코덱은 템플릿 메소드 패턴으로 구현되어있다.
+- 템플릿 메소드 패턴이은 상위 구현체에서 메소드의 실행 순서만을 지정하고 수행될 메소드의 구현은 하위 구현체로 위임한다.
+
+### 기본 제공 코덱
+
+- bytes 코덱
+    - 바이트 배열 데이터에 대한 송수신을 지원하는 코덱이다
+- compression 코덱
+    - 송수신 데이터의 압축을 지원하는 코덱이다. ( zlib, gzip, Snappy, LZF 의 압축 알고리즘 등)
+- http 코덱
+    - HTTP 프로토콜을 지원하는 코덱으로서 하위 패키지에서 다양한 데이터 송수신 방법을 지원한다. ( cors 코덱, multipart 코덱, 웹 소켓 프로토콜의 데이터 송수신을 지원하는 websocket 코덱이 있다. )
+- marshalling 코덱
+    - 객체를 네트워크를 통해서 송신 가능한 형태로 변환하는 과정이다. 바낻로 수신한 데이터를 객체로 변환하는 과정을 언마샬링이라 한다. ( JBoss 에서 개발한 마샬링 라이브러리 지원)
+- protobuf 코덱
+    - 구글의 프로토콜 버퍼를 사용한 데이터 송수신을 지원하는 코덱이다.
+- rtsp 코덱
+    - Real Time Streaming Protocol은 오디오와 비디오 같은 실시간 데이터의 전달을 위해서 특수하게 만들어진 애플리케이션 레벨의 프로토콜이다. 보통 실시간 동영상 스트리밍을 위한 제어 프로토콜로 사용된다.
+- string 코덱
+    - 문자열의 송수신을 지원하는 코덱이다. 주로 텔넷 프로토콜이나 채팅 서버의 프로토콜에 이용된다.
+- serialization 코덱
+    - 자바 객체를 네트워크로 전송 할 수 있도록 직렬화와 역직렬화를 지원하는 코덱이다. 네티의 serialization 코덱은 JDK의 ObjectOutputStream 및 ObjectInputStream 과 호환되지 않는다.
 
 ## Event Loop
 
@@ -329,26 +396,53 @@
 
 ### Executor
 
-### So_LINGER
+### SO_LINGER
+
+- 소켓은 close 한다고 해서 바로 소켓이 닫히지 않는다. 일정 시간 동안 대기 상태가 되는데 그 대기시간이 소켓의 TIME_OUT 상태이다. 이 TIME_OUT 상태의 시간을 SO_LINGER 옵션을 통해서 바로 소켓을 닫게 할 수가 있다.
+- TIME_OUT 이라는 상태를 두는 이유는 TCP는 신뢰성을 보장하는 프로토콜이기 때문에 A와 B가 TCP로 연결되어 있을때 A가 B에게 접속을 끊는다 라고 신호를 보내고 나서, 서로 3번에 걸쳐 이 신호가 오고 가서 접속을 끊기 때문이다.
 
 ### Packet
 
 - 데이터를 주고 받을 때 데이터를 적절한 크게의 묶음으로 만들어 놓은 것이다. 네트워크를 통해 전송하기 쉽도록 자른 데이터의 전송단위이다.
 
+# 소켓 옵션 설정
+
+setsockopt
+
+소켓의 송수신 동작을 setsockopt() 함수를 이용해서 다양한 옵션으로 제어할 수 있습니다. 
+
+    int setsockopt (SOCKET socket, int level, int opt name, const void* optval, int optlen);
+
+- socket : 소켓의 번호
+- level : 옵션의 종류, 보통 SOL_SOCKET 과 IPPROTO_TCP 중 하나를 사용
+- optname : 설정을 위한 소켓 옵션의 번호
+- optval : 설정 값이 저장된 주소값
+- oplen : optval 버퍼의 크기
+
+## **SOL_SOCKET 레벨**
+
+`setsockopt()` 함수의 `level`에 들어갈 값입니다.
+
+[SOL_SOCKET LEVEL](https://www.notion.so/cc5f49c57f1e4647ac96810e2f4e375e)
+
 # 주요 객체
 
-Selector : 자신에게 등록된 채널에 변경 사항이 발생했는지 검사하고 변경 사항이 발생한 채널에 대한 접근을 가능하게 해준다. 
+**Selector** : 자신에게 등록된 채널에 변경 사항이 발생했는지 검사하고 변경 사항이 발생한 채널에 대한 접근을 가능하게 해준다. 
 
-ServerSocketChannel : non-blocking 소켓의 서버 소켓 채널 (소켓을 먼저 생성하고 사용할 포트를 바인딩 한다.
+**ServerSocketChannel** : non-blocking 소켓의 서버 소켓 채널 (소켓을 먼저 생성하고 사용할 포트를 바인딩 한다.
 
-serverSocketChannel.configureBlocking(false) : 소켓 채널의 블로킹-모드를 논블로킹-모드로 설정하는 방법.
+**serverSocketChannel.configureBlocking(false**) : 소켓 채널의 블로킹-모드를 논블로킹-모드로 설정하는 방법.
 
-serverSocketChannel.bind() : 클라이언트의 연결을 대기 할 포트를 지정하고 생성된 serverSocketChannel에 연결을 생성 한다.
+**serverSocketChannel.bind()** : 클라이언트의 연결을 대기 할 포트를 지정하고 생성된 serverSocketChannel에 연결을 생성 한다.
 
-serverSocketChannel.register(selector,SelectionKey.OP_ACCEPT) : serverSocketChannel 객체를 Selector 객체에 등록한다. Selector 가 감지 할 이벤트 연결 요청에 해당하는 SelectionKey.OP_ACCEPT 이다.
+**serverSocketChannel.register(selector,SelectionKey.OP_ACCEPT) :** serverSocketChannel 객체를 Selector 객체에 등록한다. Selector 가 감지 할 이벤트 연결 요청에 해당하는 SelectionKey.OP_ACCEPT 이다.
 
-selector.select() :  selector에 등록된 채널에서 변경 사항이 발생했는지 검사한다. 
+**selector.select() :**  selector에 등록된 채널에서 변경 사항이 발생했는지 검사한다. 
 
-Iterator<SelectionKey> keys = selector.selectedKeys().iterator() : Selector에 등록된 채널 중에서 I/O이벤트가 발생한 채널들의 목록을 조회한다.
+**Iterator<SelectionKey> keys = selector.selectedKeys().iterator() : Selector**에 등록된 채널 중에서 I/O이벤트가 발생한 채널들의 목록을 조회한다.
 
-Bootrap : 소켓 연결을 요청한다. 각 Bootstrap 클래스는 AbstractBootstrap 클래스와  Channel  인터페이스를 상속받고 있다.
+**Bootrap** : 소켓 연결을 요청한다. 각 Bootstrap 클래스는 AbstractBootstrap 클래스와  Channel  인터페이스를 상속받고 있다.
+
+**ServerBootstrap** : 소켓 연결을 대기한다. 클라이언트 접속을 대기할 포트를 설정하는 메소드가 추가되어 있다. 나머지 구조는 Bootstrap과 같음.
+
+**NioEventLoopGroup** : 생성자의 인수로 사용되는 숫자는 그룹 내에서 생성할 최대 스레드의 수를 의미, 빈 칸으로 설정 시 스레드 수를 하드웨어 코어 수를 기준으로 결정. ( 하드웨어가 가지고 있는 CPU 코어 수의 2배를 사용)
