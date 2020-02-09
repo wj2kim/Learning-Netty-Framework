@@ -288,3 +288,167 @@ ChannelHandlerContext 인터페이스의 fireChannelRead 메소드를 호출하�
 3. limit 
 
 - 읽고 쓸 수 있는 버퍼공간의 최대치를 나타낸다. limit 메소드로 값을 조절 할 수 있다. 이 값을 capacity 값보다 크게 설정 할 수 없다.
+
+자바 NIO 바이트 버퍼를 생성하는 방법 
+
+1. allocate
+    - JVM 힙 영역에 바이트 버퍼를 생성한다. 메소드의 인수는 생성 할 바이트 버퍼 크기이며 앞 절에서 설명한 capacity 속성 값이다. 또 한 생성되는 바이트 버퍼 값은 모드 0으로 초기화된다.
+2. allocateDirect
+    - JVM의 힙 영역이 아닌 운영체제의 커널 영역에 바이트 버퍼를 생성한다. ByteBuffer 추상 클래스만 사용할 수 있다. 즉 다이렉트 버퍼는 ByteByffer로만 생성할 수 있다. 메소드의 인수는 생성할 바이트 버퍼의 크기며 앞 절에서 설명한 capacity의 속성 값이다. 생성되는 바이트 버퍼 값은 모두 0으로 초기화 된다.
+3. wrap
+    - 입력된 바이트 버퍼 배열을 사용하여 바이트 버퍼를 생성한다. 입력에 사용된 바이트 배열이 변경되면 wrap 메소드를 사용해서 생성한 바이트 버퍼도 변경된다.
+
+일반적으로 allocate 메소드를 사용해서 생성한 버퍼를 힙 버퍼라고 부르고 allocateDirect 메소드를 통해서 생성한 버퍼를 다이렉트 버퍼라고 한다.
+
+자바 NIO ByteBuffer의 .put 과 .get 실행 시 바이트 버퍼의 위치 정보인 position 속성이 값을 읽어 들인 길이 만큼 증가한다. 
+
+자바 바이트 버퍼는 이전에 수행한 put 또는 get 메소드가 호출된 이후의 position 정보를 저장하기 위하여 flip 메소드를 제공한다. 
+
+- flip 메소드를 호출하면 limit 속성값이 마지막에 기록한 데이터의 position 으로 변경된다.
+
+하나의 바이트 버퍼에 대하여 읽기 작업 또는 쓰기 작업의 완료를 의미하는 flip 메소드를 호출하지 않으면 반대 작벙을 수행 할 수 없다. 
+
+자바의 바이트 버퍼를 사용할 때는 읽기와 쓰기를 분리하여 생각해야 하며 특히 다중 스레드 환경에서 바이트 버퍼를 공유하지 않아야한다. 
+
+### 네티 바이트 버퍼
+
+네트 바이트 버퍼의 특징 
+
+1. 별도의 읽기 인덱스와 쓰기 인덱스 
+2. flip 메소드 없이 읽기 쓰기 가능 
+3. 가변 바이트 버퍼 
+4. 바이트 버퍼 풀 
+5. 복합 버퍼 
+6. 자바의 바이트 버퍼와 네티의 바이트 버퍼 상호 호환 
+
+네티 바이트 버퍼는 저장되는 데이터형에 따른 별도의 바이트 버퍼를 제공하지 않는 대신 각 데이터형에 대한 읽기 쓰기 메소드를 제공한다. ( 예 readFloat, writeFloat ) 
+
+또 한 읽기 쓰기 메소드가 실행될 때 각각 읽기 인덱스와 쓰기 인덱스를 증가시킨다. 읽기 인덱스와 쓰기 인덱스가 분리 되어 있어 별도의 메소드 호출 없이 읽기와 쓰기를 수행할 수 있다. 
+
+- 네티의 바이트버퍼는 하나의 바이트 버퍼에 대하여 쓰기 작업과 읽기 작업을 병행 할 수 있다.
+
+네티 바이트 버퍼 생성 방법 
+
+1. 힙 버퍼 + 풀링 함 : ByteBufAllocator.DEFAULT.heapBuffer() 
+2. 힙버퍼 + 풀링 안함 : Unpooled.buffer()
+3. 다이렉트 버퍼 + 풀링 함 : ByteBufAllocator.DEFALT.directBuffer()
+4. 다이렉트 버퍼 + 풀링 안함 : Unpooled.directBuffer()
+
+### 네티 바이트 버퍼 읽기 쓰기
+
+네티 바이트 버퍼는 자바 바이트 버퍼와 달리 읽기 쓰기 전환에 flip 메소드를 호풀하지 않는다. 자바의 바이트 버프는 쓰기 작업이 끝나고 읽기 작업을 시작하기 전 또는 그 반대 상황에서 항상 flip 메소드를 호출해야 했다. 원인은 바이트 버퍼에서 사용하는 인덱스가 하나이기 때문이다. 
+
+- 가변 크기 변경
+    - 네티 바이트 버퍼는 생성된 버퍼의 크기를 동적으로 변경 할 수 있다. 바이트 버퍼의 크기를 경해도 저장된 데이터는 보존된다.
+
+### 네티 바이트 버퍼 풀링
+
+네티 바이트 버퍼 풀링을 사용함으로써 얻을 수 있는 가장 큰 장점은 버퍼를 빈번히 할당하고 해제할 때 일어나는 가비지 컬렉션 횟수의 감소다. 두 문자열을 합쳐서 하나로 만드는 연산을 수행했을 때 가상머신에서는 2개의 객체가 생성되었다가 가바지 컬렉터의 대상이 된다. 가비지 컬렉터의 대상이 되는 객체들은 가비지 컬렉션이 수행되기 전까지 메모리를 점유하고 있게 된다. 
+
+- 네티 바이트 버퍼 풀링은 byteBufAllocator를 사용하여 바이트 버퍼를 생성할 때 자동으로 수행된다.
+- 네티는 바이트 버퍼의 참조 수를 관리하기 위하여 ReferenceCountUtil 클래스에 정의된 retain 메소드와 release 메소드를 사용한다.
+
+### 엔디안 변환
+
+네티의 바이트 버퍼 기본 엔디안은 자바와 동일하게 빅엔디안이다. 특별한 상황에서 리틀엔디안의 바이트 버퍼가 필요한데 이때 바이트 버퍼의 order 메소드를 사용하여 엔디안을 변환한다. 
+
+### 바이트 버퍼 상호 변환
+
+네티 바이트 버퍼는 nioBuffer 메소드를 이용하여 자바 NIO 버퍼로 변환이 가능하다. 변환 된 NIO 바이트 버퍼는 네티 바이트 버퍼의 내부 바이트 배열을 공유한다. 
+
+    final String source = "Hello world";
+    
+    ByteBuf buf = Unpooled.buffer(11);
+    buf.writeBytes(source.getBytes());
+    
+    ByteBuffer nioByteBuffer = buf.nioBuffer();
+    new String(nioByteBuffer.array(), nioByteBuffer.arrayOffset(), nioBuffer.remainning()));
+
+### 채널과 바이트 버퍼 풀
+
+네티 내부에서 데이터를 처리할 때 자바의 바이트 버퍼가 아닌 네티 바이트 버퍼를 사용한다. 
+
+채널 파이프라인에 등록한 핸들러 중 이벤트 메소드인 channelRead에선 인수로 사용되는 바이트 버퍼는 네티 바이트 버퍼이다. 즉 channelRead 메소드가 실행된 이후의 네티 바이트 버퍼는 바이트 버퍼 풀로 돌아간다. 네티의 바이트 버퍼 풀은 네티 애플리케이션의 서버 소켓 채널이 초기화 될 때 같이 초기화 되며 ChannelHandlerContext 인터페이스의 alloc 메소드로 생성된 바이트 버퍼 풀을 참조 할 수 있다. 
+
+# 네티 응용
+
+# 참고 개념
+
+### OIO/NIO
+
+- 자바에서는  JDK 1.3까지 블로킹방식의 I/O 만을 지원했다. 이후 JDK 1.4 부터는 NIO 라는 논블로킹 I/O API가 추가 되었다. 입출력과 관련된 기능을 제공하고 소켓도 입출력 채널의 하나로써 NIO API를 사용할 수 있으며 NIO API  를 통해서 블로킹과 논블로킹 모드의 소켓을 사용할 수 있다.
+
+### SCTP
+
+- SCTP는 TCP의 연결지향 및 전송 보장 특성과 UDP의 메시지 지향 특성을 모두 갖추고 있다.  TCP는 세 방향 핸드셰이크를 통해서 연결을 수립하지만 SCTP는 네 방향 핸드셰이크(INT-ACK, COOKIE-ECHO) 를 통해서 연결을 수립하고, 이때 연결 정보에 쿠키를 삽입하여 DOS와 같은 네트워크 공격으로 부터 보호한다.
+
+### ChannelHandlerContext 객체
+
+- 두 가지 네티 객체에 대한 상호작용을 도화주는 인터페이스이다.
+    1. 채널에 대한 입출력 처리 ( writeAndFlush 메소드로 채널에 데이터를 기록한다.) 
+    2. 채널 파이프라인에 대한 상호작용이다. 채널 파이프라인에 대한 상호작용으로는 사용에 의한 이벤트 발생과 채널 파이프라인에 등록된 이벤트 핸들러의 동적 변경이 있다.
+
+        1.  채널 파이프라인에 등록된 이벤트 핸들러의 동적변경 : ChannelHandlerContext는 채널이 초기화 될 때 설정된 채널 파이프라인을 가져오는 메소드를 제공한다. 그러므로 ChannelHandlerContext를 통해서 설정된 채널파이프라인을 수정할 수 있다. 
+
+        2. 사용자에 의한 이벤트 발생 : 데이터 수신 이벤트 메소드에서 논리적인 오류가 발생했다 하면 이 이 오류를 처리하는 공통 로직이 이미 exceptionCaught 이벤트 메소드에 작성되어 있다고 하면 ChannelHandlerContext의 fireExceptionCaught 메소드를 호출 하면 된다. fireExceptionCaught 메소드를 호출하면 채널 파이프라인으로  exceptionCaught 이벤트가 전달되고 해당 이벤트 메소드가 수행된다. 
+
+### flip() 메소드
+
+### Executor
+
+### SO_LINGER
+
+- 소켓은 close 한다고 해서 바로 소켓이 닫히지 않는다. 일정 시간 동안 대기 상태가 되는데 그 대기시간이 소켓의 TIME_OUT 상태이다. 이 TIME_OUT 상태의 시간을 SO_LINGER 옵션을 통해서 바로 소켓을 닫게 할 수가 있다.
+- TIME_OUT 이라는 상태를 두는 이유는 TCP는 신뢰성을 보장하는 프로토콜이기 때문에 A와 B가 TCP로 연결되어 있을때 A가 B에게 접속을 끊는다 라고 신호를 보내고 나서, 서로 3번에 걸쳐 이 신호가 오고 가서 접속을 끊기 때문이다.
+
+### Packet
+
+- 데이터를 주고 받을 때 데이터를 적절한 크게의 묶음으로 만들어 놓은 것이다. 네트워크를 통해 전송하기 쉽도록 자른 데이터의 전송단위이다.
+
+# 소켓 옵션 설정
+
+setsockopt
+
+소켓의 송수신 동작을 setsockopt() 함수를 이용해서 다양한 옵션으로 제어할 수 있습니다. 
+
+    int setsockopt (SOCKET socket, int level, int opt name, const void* optval, int optlen);
+
+- socket : 소켓의 번호
+- level : 옵션의 종류, 보통 SOL_SOCKET 과 IPPROTO_TCP 중 하나를 사용
+- optname : 설정을 위한 소켓 옵션의 번호
+- optval : 설정 값이 저장된 주소값
+- oplen : optval 버퍼의 크기
+
+## **SOL_SOCKET 레벨**
+
+`setsockopt()` 함수의 `level`에 들어갈 값입니다.
+
+[SOL_SOCKET LEVEL](https://www.notion.so/cc5f49c57f1e4647ac96810e2f4e375e)
+
+# 주요 객체
+
+**Selector** : 자신에게 등록된 채널에 변경 사항이 발생했는지 검사하고 변경 사항이 발생한 채널에 대한 접근을 가능하게 해준다. 
+
+**ServerSocketChannel** : non-blocking 소켓의 서버 소켓 채널 (소켓을 먼저 생성하고 사용할 포트를 바인딩 한다.
+
+**serverSocketChannel.configureBlocking(false**) : 소켓 채널의 블로킹-모드를 논블로킹-모드로 설정하는 방법.
+
+**serverSocketChannel.bind()** : 클라이언트의 연결을 대기 할 포트를 지정하고 생성된 serverSocketChannel에 연결을 생성 한다.
+
+**serverSocketChannel.register(selector,SelectionKey.OP_ACCEPT) :** serverSocketChannel 객체를 Selector 객체에 등록한다. Selector 가 감지 할 이벤트 연결 요청에 해당하는 SelectionKey.OP_ACCEPT 이다.
+
+**selector.select() :**  selector에 등록된 채널에서 변경 사항이 발생했는지 검사한다. 
+
+**Iterator<SelectionKey> keys = selector.selectedKeys().iterator() : Selector**에 등록된 채널 중에서 I/O이벤트가 발생한 채널들의 목록을 조회한다.
+
+**Bootrap** : 소켓 연결을 요청한다. 각 Bootstrap 클래스는 AbstractBootstrap 클래스와  Channel  인터페이스를 상속받고 있다.
+
+**ServerBootstrap** : 소켓 연결을 대기한다. 클라이언트 접속을 대기할 포트를 설정하는 메소드가 추가되어 있다. 나머지 구조는 Bootstrap과 같음.
+
+**NioEventLoopGroup** : 생성자의 인수로 사용되는 숫자는 그룹 내에서 생성할 최대 스레드의 수를 의미, 빈 칸으로 설정 시 스레드 수를 하드웨어 코어 수를 기준으로 결정. ( 하드웨어가 가지고 있는 CPU 코어 수의 2배를 사용)  
+
+**channel**  : AbstractBootstrap 추상 클래스의 구현체인  ServerBootstrap 과  Bootstrap 클래스에 모두 존재하는 API 이다.|
+
+**LoggingHandler** :  네티에서 기본으로 제공하는 코덱. 채널에서 발생하는 모든 이벤트를 로그로 출력해준다.
+
+**option** : 소켓 옵션을 설정하는 API. SO_SNDBUF → 소켓이 사용할 송신 버퍼의 크기를 지정. (커널에서 사용되는 값을 변경 한다는 의미), SO_RCVBUF → 커널의 수신 버퍼 크기를 지정하는데 사용.
