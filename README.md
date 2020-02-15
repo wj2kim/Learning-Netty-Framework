@@ -493,3 +493,23 @@ Codec ****: 이벤트 핸들러를 상속받아서 구현한 구현체들이 코
 **channelReadComplete** : 채널의 데이터를 다 읽어서 더 이상 데이터가 없을 때 이 이벤트가 발생한다.
 
 **flush** : 채널 버퍼에 저장된 데이터를 상대방으로 즉시 전송하는 메소드.
+
+**channelInactive**  : 채널에 대한 입출력 작업을 수행할 수 없음 
+
+**channelUnregistered** : 채널이 이벤트 루프에서 제거됬을 때 발생. 채널에서 발생한 이벤트를 처리 할 수 없게됨.
+
+**channelOutboundHandler** : 네티 사용자가 요청한 동작에 해당하는 이벤트를 말함. 연결 요청, 데이터 전송, 소켓 닫기 등이 있다. 채널인바운드핸들러와 마찬가지로 인터페이스로 제공한다. 또 한 모든 채널아웃바운드핸들러는 ChannelHandlerContext 객체를 인수로 받는다. 
+
+**ChannelHandlerContext** 객체 : 두 가지 네티 객체에 대한 상호작용을 도화주는 인터페이스. 
+**1.** 채널에 대한 입출력 처리. ( writeAndFlush 메소드로 채널에 데이터를 기록한다. 또 는 ChannelHandlerContext의 close메소드로 채널의 연결을 종료 할 수 있다. ) 
+**2.** 채널 파이프라인에 대한 상호작용. ( 사용자에 의한 이벤트 발생과 채널 파이프라인에 등록된 이벤트 핸들러의 동적 변경) 채널이 초기화 될 때 채널 파이프라인을 가져오는 메소드를 제공. 그러므로 ChannelHandlerContext를 통해서 설정된 채널 파이프라인을 수정 할 수 있다. 데이터 수신 이벤트 메소드에서 오류가 발생했을때 이 오류를 처리하는 공통 로직이 이미 exceptionCaught 이벤트 메소드에 작성이 되어있다면  ChannelHandlerContext의 fireExceptionCaught 메소드를 호출하면 된다.
+
+**fireChannelRead** : ChannelHandlerContext 인터페이스의  fireChannelRead 메소드를 호출하면 네티는 채널 파이프라인에 channelRead 이벤트를 발생시킨다.
+
+**네티의 코덱**은 템플릿 메소드 패턴으로 구현되어 있음. 여기서 템플릿 메소드 패턴이란 상위 구현체에서 메소드의 실행 순서만을 지정하고 수행될 메소드의 구현은 하위 구현체로 위임하는 것이다.   
+
+네티의 모든 **이벤트**는 채널 파이프라인을 통해서 이동되며 이벤트 핸들러가 특정 이벤트를 수신하여 처리한다.
+
+**StringDecoder, StringEncoder** : 네티에서 제공하는 문자열 디코더/인코더
+
+**DelimiterBasedFrameDecoder** : 네티가 제공하는 기본 디코더로써 구분자 기반의 패킷을 처리한다.
