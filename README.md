@@ -513,3 +513,17 @@ setsockopt
 **StringDecoder, StringEncoder** : 네티에서 제공하는 문자열 디코더/인코더
 
 **DelimiterBasedFrameDecoder** : 네티가 제공하는 기본 디코더로써 구분자 기반의 패킷을 처리한다.
+
+**@Sharable** : 이 어노테이션은 네티가 제공하는 공유가능 상태표시 어노테이션이다. Sharable로 지정된 클래스를 채널 파이프라인에서 공유할 수 있다는 의미이다. 다중 스레드에서 스레드 경합없이 참조가 가능하다.
+
+**Sharable** : 어노테이션을 표시하기 위한 다른 한가지 제약 조건은 스레드 안전성을 지원해야 한다는 것이다.  
+
+**channelActive**  : 메소드는 채널이 생성된 다음 바로 호출되는 이벤트이다. 통상적으로 채널이 연결된 직후에 수행할 작업을 처리할 때 사용하는 이벤트이다.
+
+**childHandler(ChannelHandler)** : Channel의 요청을 수행하기 위한 메소드 
+
+**ChannelFuture** : 비동기 Channel I/O 수행의 결과를 ChannelFuture 인스턴스로 반환한다.
+
+**channel()** : 연결된 인스턴스의 channel을 반환한다.
+
+**closeFuture()** : ChannelFuture 을 반환하고 채널이 닫힌것을 알려준다.
