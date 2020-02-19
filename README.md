@@ -430,6 +430,20 @@ ChannelHandlerContext 인터페이스의 fireChannelRead 메소드를 호출하�
 
 - 데이터를 주고 받을 때 데이터를 적절한 크게의 묶음으로 만들어 놓은 것이다. 네트워크를 통해 전송하기 쉽도록 자른 데이터의 전송단위이다.
 
+org.jboss.netty.handler.timeout 과 handler 예제
+
+- org.jboss.netty.handler.timeout은 Timer를 사용하여 Read와 Write의 Timeout과 idle connection의 알림을 위해서 추가되었다.
+    - IdleSateHandler - 한 채널에서 read 나 write, 혹은 둘다 특정기간동안 수행되지 않을 떄 IdleStateEvent를 발생시킨다. 인자값으로 ReadIdleTime, WriteIdelTime, AllIdelTime 을 순서대로 입력 받고, 단위는 Second 로 만약 0 을 설정했을 경우 Idle 동작은 Disable 된다.
+    - ReadTimeoutHandler - 특정하게 정해진 기간내에 Data를 읽을 수 없을 때 ReadTimeoutException을 발생시킨다.
+    - writeTimeoutHandler - 특정하게 정해진 기간내에 Data를 읽을 수 없을때 WriteTimeoutException을 발생시킨다.
+- Idle state와 TimeException
+    - IdleState - 채널의 Idle 상태를 표시해주는 Enum 이다. 
+    ALL_IDLE, READER_IDLE, WRITER_IDLE 3개자의 상태값이 존재한다.
+    - TimeoutException 특정하게 정해진 기간내에 읽기나 쓰기 각각 발생하지 않았을 경우 발생한다.
+    - ReadTimeoutException - 특정하게 정해진 기간내에 Data의 read를 할 수 없을 경우 ReadTimeoutHandler에 의해서 발생된다.
+    - WriteTimeoutException 특정하게 정해진 기간내에 Data를 write 할 수 없을 경우 WriteTimeoutHandler 에 의해서 발생된다.
+    
+
 # 소켓 옵션 설정
 
 setsockopt
