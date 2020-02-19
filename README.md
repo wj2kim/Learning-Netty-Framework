@@ -395,6 +395,10 @@ ChannelHandlerContext 인터페이스의 fireChannelRead 메소드를 호출하�
 
 채널 파이프라인에 등록한 핸들러 중 이벤트 메소드인 channelRead에선 인수로 사용되는 바이트 버퍼는 네티 바이트 버퍼이다. 즉 channelRead 메소드가 실행된 이후의 네티 바이트 버퍼는 바이트 버퍼 풀로 돌아간다. 네티의 바이트 버퍼 풀은 네티 애플리케이션의 서버 소켓 채널이 초기화 될 때 같이 초기화 되며 ChannelHandlerContext 인터페이스의 alloc 메소드로 생성된 바이트 버퍼 풀을 참조 할 수 있다. 
 
+### ByteBuffer 보다 ChannelBuffer의 성능이 좋은 이유
+
+Nio의 ByteBuffer는 여러가지 바운더리 체크가 항상 일어나지만 Netty의 ByteBuf는 바운더리 체크 제약이 보다 느슨하여 이로인한 복잡한 경비 체크 비용이 줄었으며, ByteBuffer과는 다른 인덱스의 장점과 JVM이 Buffer에 Access 하기 쉬운 장점이 있다.
+
 # 네티 응용
 
 # 참고 개념
@@ -430,7 +434,7 @@ ChannelHandlerContext 인터페이스의 fireChannelRead 메소드를 호출하�
 
 - 데이터를 주고 받을 때 데이터를 적절한 크게의 묶음으로 만들어 놓은 것이다. 네트워크를 통해 전송하기 쉽도록 자른 데이터의 전송단위이다.
 
-org.jboss.netty.handler.timeout 과 handler 예제
+### org.jboss.netty.handler.timeout 과 handler 예제
 
 - org.jboss.netty.handler.timeout은 Timer를 사용하여 Read와 Write의 Timeout과 idle connection의 알림을 위해서 추가되었다.
     - IdleSateHandler - 한 채널에서 read 나 write, 혹은 둘다 특정기간동안 수행되지 않을 떄 IdleStateEvent를 발생시킨다. 인자값으로 ReadIdleTime, WriteIdelTime, AllIdelTime 을 순서대로 입력 받고, 단위는 Second 로 만약 0 을 설정했을 경우 Idle 동작은 Disable 된다.
