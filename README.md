@@ -545,3 +545,7 @@ setsockopt
 **channel()** : 연결된 인스턴스의 channel을 반환한다.
 
 **closeFuture()** : ChannelFuture 을 반환하고 채널이 닫힌것을 알려준다.
+
+**EmbeddedChanne**l : 강제로 네티 이벤트를 발생시키기 위해 ChannelHandlerContext 객체를 생성해야하며 이에 따른 이벤트 루프를 설정 해주는 복잡한 과정을거칠 필요 없이 핸들러를 테스트 할 수 있는 클래스이다. 
+
+**EmbeddedChannel.writeInbound()** :  EmbeddedChannel 객체의 인바운드에 기록한다. 클라이언트로 부터 데이터를 수신한 것과 같은 상태가 된다.
